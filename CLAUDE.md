@@ -23,3 +23,7 @@ This is a **Next.js 16 App Router** project bootstrapped with `create-next-app`.
 - **pnpm** as the package manager
 
 The app is essentially a blank slate — only the default create-next-app boilerplate exists. The root layout (`app/layout.tsx`) sets up Geist fonts and dark mode CSS variables. No Steam API integration or inventory tracking logic has been built yet.
+
+## Tools
+
+Always use Context7 MCP tools for code generation, setup/configuration steps, and library/API documentation. This means automatically calling `mcp__plugin_context7_context7__resolve-library-id` and `mcp__plugin_context7_context7__query-docs` without waiting to be asked.
