@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import InventoryChart from "./components/InventoryChart";
 import BuyPriceInput from "./components/BuyPriceInput";
+import ItemName from "./components/ItemName";
 import {
   getLatestInventory,
   getPortfolioHistory,
@@ -98,20 +99,20 @@ export default async function Home() {
                         : "bg-zinc-50 dark:bg-zinc-900/50"
                     }`}
                   >
-                    <td className="px-4 py-2 flex items-center gap-3">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={getIconUrl(item.iconUrl)}
-                        alt={item.name}
-                        width={32}
-                        height={32}
-                        className="shrink-0"
-                      />
-                      <span className="text-zinc-700 dark:text-zinc-300">
-                        {item.marketHashName}
-                      </span>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={getIconUrl(item.iconUrl)}
+                          alt={item.name}
+                          width={32}
+                          height={32}
+                          className="shrink-0"
+                        />
+                        <ItemName name={item.marketHashName} />
+                      </div>
                     </td>
-                    <td className="px-4 py-2 text-zinc-500">
+                    <td className="px-4 py-2 text-zinc-500 whitespace-nowrap">
                       {firstSeenDates.get(item.assetid) ?? "—"}
                     </td>
                     <td className="px-4 py-2">

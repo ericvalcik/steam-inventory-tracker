@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   LineChart,
   Line,
@@ -18,6 +19,39 @@ interface DataPoint {
 
 interface Props {
   data: DataPoint[];
+}
+
+const RANGES = [
+  { label: "7D", days: 7 },
+  { label: "30D", days: 30 },
+  { label: "90D", days: 90 },
+  { label: "1Y", days: 365 },
+  { label: "All", days: null },
+] as const;
+
+function getFilteredData(data: DataPoint[], days: number | null): DataPoint[] {
+  if (days === null) return data;
+  if (data.length === 0) return data;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - days);
+  const startStr = startDate.toISOString().slice(0, 10);
+
+  const inRange = data.filter((d) => d.date >= startStr);
+  const firstActual = data[0]; // data is sorted ASC
+
+  // If our earliest data is after the range start, prepend a backfill point
+  // at the range start using the oldest values — this draws a flat line back
+  if (firstActual.date > startStr) {
+    return [
+      { date: startStr, value: firstActual.value, invested: firstActual.invested },
+      ...inRange,
+    ];
+  }
+
+  return inRange;
 }
 
 function formatPrice(cents: number) {
@@ -48,9 +82,14 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function InventoryChart({ data }: Props) {
+  const [range, setRange] = useState<(typeof RANGES)[number]["label"]>("7D");
+
   if (data.length === 0) return null;
 
-  const allValues = data.flatMap((d) =>
+  const selectedDays = RANGES.find((r) => r.label === range)!.days;
+  const filtered = getFilteredData(data, selectedDays);
+
+  const allValues = filtered.flatMap((d) =>
     [d.value, d.invested].filter((v): v is number => v !== undefined)
   );
   const minValue = Math.min(...allValues);
@@ -59,11 +98,28 @@ export default function InventoryChart({ data }: Props) {
 
   return (
     <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 mb-6">
-      <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-4">
-        Portfolio Value History
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wide">
+          Portfolio Value History
+        </h2>
+        <div className="flex gap-1">
+          {RANGES.map((r) => (
+            <button
+              key={r.label}
+              onClick={() => setRange(r.label)}
+              className={`px-2 py-0.5 text-xs rounded transition-colors ${
+                range === r.label
+                  ? "bg-zinc-800 text-white"
+                  : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={data} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+        <LineChart data={filtered} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
           <XAxis
             dataKey="date"
             tickFormatter={formatDate}
