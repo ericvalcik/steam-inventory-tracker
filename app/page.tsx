@@ -20,13 +20,14 @@ function formatPrice(cents: number) {
 }
 
 export default async function Home() {
-  const [items, portfolioHistory, investedHistory, firstSeenDates, buyPrices] = await Promise.all([
-    getLatestInventory(STEAM_ID),
-    getPortfolioHistory(STEAM_ID),
-    getInvestedHistory(STEAM_ID),
-    getFirstSeenDates(STEAM_ID),
-    getBuyPrices(STEAM_ID),
-  ]);
+  const [items, portfolioHistory, investedHistory, firstSeenDates, buyPrices] =
+    await Promise.all([
+      getLatestInventory(STEAM_ID),
+      getPortfolioHistory(STEAM_ID),
+      getInvestedHistory(STEAM_ID),
+      getFirstSeenDates(STEAM_ID),
+      getBuyPrices(STEAM_ID),
+    ]);
 
   const pricedItems = items.filter((item) => item.priceCents !== null);
 
@@ -37,10 +38,13 @@ export default async function Home() {
     invested: investedByDate.get(p.date),
   }));
 
-  const totalCents = items.reduce((acc, item) => acc + (item.priceCents ?? 0) * item.amount, 0);
+  const totalCents = items.reduce(
+    (acc, item) => acc + (item.priceCents ?? 0) * item.amount,
+    0,
+  );
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-8">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 md:p-8 px-4 py-8">
       <main className="mx-auto max-w-4xl">
         <div className="flex items-baseline justify-between mb-6">
           <div>
@@ -61,26 +65,37 @@ export default async function Home() {
 
         <InventoryChart data={chartData} />
 
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900">
-                <th className="text-left px-4 py-2 font-medium text-zinc-500">Item</th>
-                <th className="text-left px-4 py-2 font-medium text-zinc-500">Date Added</th>
-                <th className="text-right px-4 py-2 font-medium text-zinc-500">Buy Price</th>
-                <th className="text-right px-4 py-2 font-medium text-zinc-500">Market Price</th>
+                <th className="text-left px-4 py-2 font-medium text-zinc-500">
+                  Item
+                </th>
+                <th className="text-left px-4 py-2 font-medium text-zinc-500">
+                  Date Added
+                </th>
+                <th className="text-right px-4 py-2 font-medium text-zinc-500">
+                  Buy Price
+                </th>
+                <th className="text-right px-4 py-2 font-medium text-zinc-500">
+                  Market Price
+                </th>
               </tr>
             </thead>
             <tbody>
               {pricedItems.map((item, i) => {
                 const buyEntry = buyPrices.get(item.assetid);
-                const buyInitialCents = buyEntry?.buyCents ?? item.priceCents ?? 0;
+                const buyInitialCents =
+                  buyEntry?.buyCents ?? item.priceCents ?? 0;
                 const isManuallySet = buyEntry?.manuallySet ?? false;
                 return (
                   <tr
                     key={item.assetid}
                     className={`border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 ${
-                      i % 2 === 0 ? "bg-white dark:bg-zinc-950" : "bg-zinc-50 dark:bg-zinc-900/50"
+                      i % 2 === 0
+                        ? "bg-white dark:bg-zinc-950"
+                        : "bg-zinc-50 dark:bg-zinc-900/50"
                     }`}
                   >
                     <td className="px-4 py-2 flex items-center gap-3">
@@ -92,7 +107,9 @@ export default async function Home() {
                         height={32}
                         className="shrink-0"
                       />
-                      <span className="text-zinc-700 dark:text-zinc-300">{item.marketHashName}</span>
+                      <span className="text-zinc-700 dark:text-zinc-300">
+                        {item.marketHashName}
+                      </span>
                     </td>
                     <td className="px-4 py-2 text-zinc-500">
                       {firstSeenDates.get(item.assetid) ?? "—"}
