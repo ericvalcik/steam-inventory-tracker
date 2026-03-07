@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     // Fetch inventory + prices in parallel
     const [items, priceMap] = await Promise.all([
       getInventory(),
-      getPriceMap().catch(() => new Map<string, number>()),
+      getPriceMap(),
     ]);
 
     // Fetch yesterday's assetids for diff
