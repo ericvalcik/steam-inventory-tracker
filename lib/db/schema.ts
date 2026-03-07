@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   index,
   integer,
@@ -40,3 +41,31 @@ export const inventorySnapshots = pgTable(
 
 export type InsertSnapshot = typeof inventorySnapshots.$inferInsert;
 export type SelectSnapshot = typeof inventorySnapshots.$inferSelect;
+
+export const itemBuyPrices = pgTable(
+  "item_buy_prices",
+  {
+    id: serial("id").primaryKey(),
+    steamId: varchar("steam_id", { length: 20 }).notNull(),
+    assetid: varchar("assetid", { length: 30 }).notNull(),
+    buyCents: integer("buy_cents").notNull(),
+    manuallySet: boolean("manually_set").notNull().default(false),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    unique("uq_buy_price_steam_asset").on(table.steamId, table.assetid),
+  ]
+);
+
+export const portfolioInvestedHistory = pgTable(
+  "portfolio_invested_history",
+  {
+    id: serial("id").primaryKey(),
+    steamId: varchar("steam_id", { length: 20 }).notNull(),
+    snapshotDate: date("snapshot_date").notNull(),
+    investedCents: integer("invested_cents").notNull(),
+  },
+  (table) => [
+    unique("uq_invested_steam_date").on(table.steamId, table.snapshotDate),
+  ]
+);

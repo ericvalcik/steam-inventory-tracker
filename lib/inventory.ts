@@ -38,7 +38,7 @@ export async function getInventory(): Promise<InventoryItem[]> {
     }
   );
 
-  if (!res.ok) return [];
+  if (!res.ok) throw new Error(`Steam inventory ${res.status}: ${await res.text()}`);
   const data: InventoryResponse = await res.json();
   const { assets, descriptions } = data ?? {};
   if (!assets || !descriptions) return [];
@@ -60,7 +60,7 @@ export async function getPriceMap(): Promise<Map<string, number>> {
     headers: { "User-Agent": "Mozilla/5.0" },
   });
   const map = new Map<string, number>();
-  if (!res.ok) return map;
+  if (!res.ok) throw new Error(`CSFloat price-list ${res.status}: ${await res.text()}`);
   const data: { market_hash_name: string; min_price: number }[] =
     await res.json();
   for (const item of data) {
