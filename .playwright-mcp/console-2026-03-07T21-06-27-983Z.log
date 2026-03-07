@@ -1,0 +1,26 @@
+[     104ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[     363ms] Error: The edge runtime does not support Node.js 'crypto' module.
+Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+    at Object.apply (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:79:41)
+    at expectedToken (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/[root-of-the-server]__1d8f7fa9._.js:33:174)
+    at middleware (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/[root-of-the-server]__1d8f7fa9._.js:42:19)
+    at <unknown> (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:12021:26)
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at <unknown> (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:7316:977)
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at <unknown> (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:7316:486)
+    at async adapter (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:7271:16)
+    at async (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.0_react-dom@19.2.3_react@19.2.3__react@19.2.3/node_modules/next/dist/server/web/sandbox/sandbox.js:112:26)
+[   21836ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/:0
+[   22023ms] Error: The edge runtime does not support Node.js 'crypto' module.
+Learn More: https://nextjs.org/docs/messages/node-module-in-edge-runtime
+    at Object.apply (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:79:41)
+    at expectedToken (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/[root-of-the-server]__1d8f7fa9._.js:33:174)
+    at middleware (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/[root-of-the-server]__1d8f7fa9._.js:42:19)
+    at <unknown> (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:12021:26)
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at <unknown> (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:7316:977)
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at <unknown> (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:7316:486)
+    at async adapter (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/.next/dev/server/edge/chunks/b2b3e_next_dist_33fe7726._.js:7271:16)
+    at async (file:///Users/ericvalcik/src/personal/steam-inventory-tracker/node_modules/.pnpm/next@16.1.6_@babel+core@7.29.0_react-dom@19.2.3_react@19.2.3__react@19.2.3/node_modules/next/dist/server/web/sandbox/sandbox.js:112:26)
