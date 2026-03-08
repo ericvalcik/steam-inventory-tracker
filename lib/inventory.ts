@@ -33,7 +33,7 @@ export async function getInventory(): Promise<InventoryItem[]> {
   const res = await fetch(
     `https://steamcommunity.com/inventory/${STEAM_ID}/730/2`,
     {
-      next: { revalidate: 300 },
+      cache: "no-store",
       headers: { "User-Agent": "Mozilla/5.0" },
     }
   );
@@ -56,7 +56,7 @@ export async function getInventory(): Promise<InventoryItem[]> {
 
 export async function getPriceMap(): Promise<Map<string, number>> {
   const res = await fetch("https://csfloat.com/api/v1/listings/price-list", {
-    next: { revalidate: 300 },
+    cache: "no-store",
     headers: { "User-Agent": "Mozilla/5.0" },
   });
   const map = new Map<string, number>();

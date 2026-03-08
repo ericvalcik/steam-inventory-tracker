@@ -46,7 +46,11 @@ function getFilteredData(data: DataPoint[], days: number | null): DataPoint[] {
   // at the range start using the oldest values — this draws a flat line back
   if (firstActual.date > startStr) {
     return [
-      { date: startStr, value: firstActual.value, invested: firstActual.invested },
+      {
+        date: startStr,
+        value: firstActual.value,
+        invested: firstActual.invested,
+      },
       ...inRange,
     ];
   }
@@ -73,8 +77,13 @@ function CustomTooltip({ active, payload, label }: any) {
     <div className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs shadow-lg space-y-0.5">
       <p className="text-zinc-400 mb-1">{formatDate(label)}</p>
       {payload.map((entry: { name: string; value: number; color: string }) => (
-        <p key={entry.name} style={{ color: entry.color }} className="font-semibold">
-          {entry.name === "value" ? "Value" : "Invested"}: {formatPrice(entry.value)}
+        <p
+          key={entry.name}
+          style={{ color: entry.color }}
+          className="font-semibold"
+        >
+          {entry.name === "value" ? "Value" : "Invested"}:{" "}
+          {formatPrice(entry.value)}
         </p>
       ))}
     </div>
@@ -90,14 +99,14 @@ export default function InventoryChart({ data }: Props) {
   const filtered = getFilteredData(data, selectedDays);
 
   const allValues = filtered.flatMap((d) =>
-    [d.value, d.invested].filter((v): v is number => v !== undefined)
+    [d.value, d.invested].filter((v): v is number => v !== undefined),
   );
   const minValue = Math.min(...allValues);
   const maxValue = Math.max(...allValues);
   const padding = (maxValue - minValue) * 0.1 || maxValue * 0.1;
 
   return (
-    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 mb-6">
+    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 mb-3">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wide">
           Portfolio Value History
@@ -119,7 +128,10 @@ export default function InventoryChart({ data }: Props) {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={filtered} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+        <LineChart
+          data={filtered}
+          margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
+        >
           <XAxis
             dataKey="date"
             tickFormatter={formatDate}

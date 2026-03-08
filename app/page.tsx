@@ -47,20 +47,22 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 md:p-8 px-4 py-8">
       <main className="mx-auto max-w-4xl">
-        <div className="flex items-baseline justify-between mb-6">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold text-black dark:text-white mb-1">
               CS2 Inventory
             </h1>
             <p className="text-sm text-zinc-500">{items.length} items</p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide mb-0.5">
-              Total Value
-            </p>
-            <p className="text-2xl font-semibold text-emerald-500">
-              {formatPrice(totalCents)}
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-xs text-zinc-500 uppercase tracking-wide mb-0.5">
+                Total Value
+              </p>
+              <p className="text-2xl font-semibold text-emerald-500">
+                {formatPrice(totalCents)}
+              </p>
+            </div>
           </div>
         </div>
 

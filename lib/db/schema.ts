@@ -57,6 +57,7 @@ export const itemBuyPrices = pgTable(
   ]
 );
 
+
 export const portfolioInvestedHistory = pgTable(
   "portfolio_invested_history",
   {
