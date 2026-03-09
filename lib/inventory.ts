@@ -35,13 +35,16 @@ export async function getInventory(): Promise<InventoryItem[]> {
     {
       cache: "no-store",
       headers: { "User-Agent": "Mozilla/5.0" },
-    }
+    },
   );
 
-  if (!res.ok) throw new Error(`Steam inventory ${res.status}: ${await res.text()}`);
+  if (!res.ok)
+    throw new Error(`Steam inventory ${res.status}: ${await res.text()}`);
   const data: InventoryResponse = await res.json();
   const { assets, descriptions } = data ?? {};
   if (!assets || !descriptions) return [];
+
+  console.log("[debug] assets:", assets);
 
   const descMap = new Map<string, Description>();
   for (const desc of descriptions) {
@@ -60,11 +63,25 @@ export async function getPriceMap(): Promise<Map<string, number>> {
     headers: { "User-Agent": "Mozilla/5.0" },
   });
   const map = new Map<string, number>();
-  if (!res.ok) throw new Error(`CSFloat price-list ${res.status}: ${await res.text()}`);
+  if (!res.ok)
+    throw new Error(`CSFloat price-list ${res.status}: ${await res.text()}`);
   const data: { market_hash_name: string; min_price: number }[] =
     await res.json();
   for (const item of data) {
     map.set(item.market_hash_name, item.min_price);
   }
   return map;
+}
+
+export async function getInventoryRaw(): Promise<InventoryResponse> {
+  const res = await fetch(
+    `https://steamcommunity.com/inventory/${STEAM_ID}/730/2`,
+    {
+      cache: "no-store",
+      headers: { "User-Agent": "Mozilla/5.0" },
+    },
+  );
+  if (!res.ok)
+    throw new Error(`Steam inventory ${res.status}: ${await res.text()}`);
+  return await res.json();
 }
