@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and, count, sql } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { inventorySnapshots, portfolioInvestedHistory, itemBuyPrices } from "@/lib/db/schema";
 import { getInventory, getPriceMap, STEAM_ID } from "@/lib/inventory";
@@ -105,17 +105,14 @@ export async function GET(req: NextRequest) {
     const buyPriceByAssetid = new Map(buyPriceRows.map((r) => [r.assetid, r]));
 
     const autoPriceValues = items
-      .filter((item) => {
-        const existing = buyPriceByAssetid.get(item.assetid);
-        return !existing || !existing.manuallySet;
-      })
+      .filter((item) => !buyPriceByAssetid.has(item.assetid))
       .map((item) => ({
         steamId: STEAM_ID,
         assetid: item.assetid,
         buyCents: priceMap.get(item.market_hash_name) ?? 0,
         manuallySet: false,
       }));
-    console.log(`[cron] Auto-pricing ${autoPriceValues.length} items (rest are manually set)`);
+    console.log(`[cron] Auto-pricing ${autoPriceValues.length} new items (no existing entry)`);
 
     // Invested = sum of buy prices for all items currently owned
     const investedCents = items.reduce((acc, item) => {
@@ -143,11 +140,7 @@ export async function GET(req: NextRequest) {
           await db
             .insert(itemBuyPrices)
             .values(autoPriceValues.slice(i, i + batchSize))
-            .onConflictDoUpdate({
-              target: [itemBuyPrices.steamId, itemBuyPrices.assetid],
-              set: { buyCents: sql`excluded.buy_cents`, manuallySet: false },
-              setWhere: eq(itemBuyPrices.manuallySet, false),
-            });
+            .onConflictDoNothing();
         }
         console.log("[cron] Buy prices upserted");
       }
