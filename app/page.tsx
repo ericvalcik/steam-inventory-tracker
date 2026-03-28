@@ -44,6 +44,20 @@ export default async function Home() {
     0,
   );
 
+  const totalInvestedCents = pricedItems.reduce((acc, item) => {
+    const buyEntry = buyPrices.get(item.assetid);
+    const buyCents = buyEntry?.buyCents ?? item.priceCents ?? 0;
+    return acc + buyCents * item.amount;
+  }, 0);
+
+  const totalPnlCents = totalCents - totalInvestedCents;
+
+  const dailyPnlCents =
+    portfolioHistory.length >= 2
+      ? portfolioHistory[portfolioHistory.length - 1].value -
+        portfolioHistory[portfolioHistory.length - 2].value
+      : 0;
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 md:p-8 px-4 py-8">
       <main className="mx-auto max-w-4xl">
@@ -59,9 +73,35 @@ export default async function Home() {
               <p className="text-xs text-zinc-500 uppercase tracking-wide mb-0.5">
                 Total Value
               </p>
-              <p className="text-2xl font-semibold text-emerald-500">
-                {formatPrice(totalCents)}
-              </p>
+              <div className="flex items-center gap-3 justify-end">
+                <div className="text-right text-xs">
+                  <p className="text-zinc-500">
+                    PnL:{" "}
+                    <span
+                      className={
+                        totalPnlCents >= 0 ? "text-emerald-500" : "text-red-500"
+                      }
+                    >
+                      {totalPnlCents >= 0 ? "+" : ""}
+                      {formatPrice(totalPnlCents)}
+                    </span>
+                  </p>
+                  <p className="text-zinc-500">
+                    Daily:{" "}
+                    <span
+                      className={
+                        dailyPnlCents >= 0 ? "text-emerald-500" : "text-red-500"
+                      }
+                    >
+                      {dailyPnlCents >= 0 ? "+" : ""}
+                      {formatPrice(dailyPnlCents)}
+                    </span>
+                  </p>
+                </div>
+                <p className="text-2xl font-semibold text-emerald-500">
+                  {formatPrice(totalCents)}
+                </p>
+              </div>
             </div>
           </div>
         </div>
