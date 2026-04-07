@@ -1,0 +1,27 @@
+---
+description: Require Drizzle for migrations and schema changes; do not use Neon MCP
+alwaysApply: true
+---
+
+# Drizzle-Only Database Changes
+
+Use Drizzle for all migration and schema workflows in this project.
+
+## Rules
+
+- Never run migrations through Neon MCP tools.
+- Never apply schema changes through Neon MCP (no direct SQL for schema updates).
+- Use Drizzle migration files for all schema evolution.
+- Use Drizzle commands to generate and apply migrations.
+
+## Required Workflow
+
+1. Update Drizzle schema files.
+2. Generate migration files with Drizzle (for example, `pnpm drizzle-kit generate`).
+3. Apply migrations with Drizzle (for example, `pnpm drizzle-kit migrate`).
+
+## Notes
+
+- Neon MCP can be used for data operations when needed (for example: `SELECT`, `INSERT`, `UPDATE`, and `DELETE`).
+- Neon MCP must not be used for schema changes or migration execution.
+- Any migration or schema-change request must be implemented via Drizzle, not Neon MCP.
