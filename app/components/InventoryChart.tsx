@@ -62,8 +62,17 @@ function formatPrice(cents: number) {
   return `$${(cents / 100).toFixed(0)}`;
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Parse a YYYY-MM-DD string as local midnight. `new Date(iso)` would parse it
+// as UTC midnight and shift the rendered day in negative-offset timezones.
+function toTimestamp(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).getTime();
+}
+
+function formatDate(ts: number) {
+  return new Date(ts).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "2-digit",
@@ -96,7 +105,18 @@ export default function InventoryChart({ data }: Props) {
   if (data.length === 0) return null;
 
   const selectedDays = RANGES.find((r) => r.label === range)!.days;
-  const filtered = getFilteredData(data, selectedDays);
+  const filtered = getFilteredData(data, selectedDays).map((d) => ({
+    ...d,
+    ts: toTimestamp(d.date),
+  }));
+
+  // A time axis needs a non-degenerate domain — pad a single point by a day.
+  const firstTs = filtered.length > 0 ? filtered[0].ts : 0;
+  const lastTs = filtered.length > 0 ? filtered[filtered.length - 1].ts : 0;
+  const xDomain: [number, number] =
+    firstTs === lastTs
+      ? [firstTs - DAY_MS / 2, lastTs + DAY_MS / 2]
+      : [firstTs, lastTs];
 
   const allValues = filtered.flatMap((d) =>
     [d.value, d.invested].filter((v): v is number => v !== undefined),
@@ -127,13 +147,21 @@ export default function InventoryChart({ data }: Props) {
           ))}
         </div>
       </div>
+      {filtered.length === 0 ? (
+        <div className="flex h-[200px] items-center justify-center text-xs text-zinc-500">
+          No snapshots in this range
+        </div>
+      ) : (
       <ResponsiveContainer width="100%" height={200}>
         <LineChart
           data={filtered}
           margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
         >
           <XAxis
-            dataKey="date"
+            dataKey="ts"
+            type="number"
+            scale="time"
+            domain={xDomain}
             tickFormatter={formatDate}
             tick={{ fontSize: 10, fill: "#71717a" }}
             tickLine={false}
@@ -176,6 +204,7 @@ export default function InventoryChart({ data }: Props) {
           />
         </LineChart>
       </ResponsiveContainer>
+      )}
     </div>
   );
 }
