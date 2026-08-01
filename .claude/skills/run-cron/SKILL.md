@@ -1,76 +1,52 @@
 ---
 name: run-cron
-description: Run the inventory-snapshot cron route locally against a dev server and confirm the rows landed in Neon. Use when the Vercel cron is blocked, failed, or was skipped, when a day is missing from the snapshot history, or when the user asks to run/trigger/backfill the inventory snapshot by hand.
+description: Trigger the inventory-snapshot cron job locally.
+disable-model-invocation: true
 ---
 
 # Run the inventory snapshot cron locally
 
-`vercel.json` schedules `GET /api/cron/inventory-snapshot` daily at 02:00 UTC. When
-Vercel doesn't run it, invoke the same route against a local dev server — it reads
-`.env.local`, so it writes to the **live Neon database**, exactly as the deployed
-cron would.
+Invoke `GET /api/cron/inventory-snapshot` against a local dev server. It reads
+`.env.local`, so it writes to the **live Neon database**, the same as the Vercel
+cron would. The user asked for this by typing `/run-cron` — just do it.
 
-## Workflow
+## Do this
 
-1. **Dry run first** — proves the Steam and CSFloat fetches work without writing:
+```bash
+.claude/skills/run-cron/scripts/run-cron.sh
+node --env-file=.env.local .claude/skills/run-cron/scripts/verify-snapshot.mjs
+```
 
-   ```bash
-   .claude/skills/run-cron/scripts/run-cron.sh --dry
-   ```
-
-2. **Real run** — tell the user this writes to production data before doing it:
-
-   ```bash
-   .claude/skills/run-cron/scripts/run-cron.sh
-   ```
-
-3. **Verify** the rows landed (don't trust the HTTP 200 alone):
-
-   ```bash
-   node --env-file=.env.local .claude/skills/run-cron/scripts/verify-snapshot.mjs
-   ```
-
-   Expect a row for today's UTC date in both `inventory_snapshots` and
-   `portfolio_invested_history`.
-
-4. **Report** the snapshot date, item count, invested total, and any history gaps
-   the verify script prints.
-
-## Flags
-
-| Flag | Effect |
-| --- | --- |
-| `--dry` | Fetch and compute, skip every DB write |
-| `--force` | Bypass the "already ran today" guard and re-insert (writes are `onConflictDoNothing`, so this is safe to repeat) |
-
-Without `--force` a second run the same day returns `{"status":"already_ran"}` —
-that's the idempotency guard, not a failure.
+Then report: snapshot date, item count, invested total, and whether the row for
+today's UTC date actually appeared in the verify output. Don't trust the HTTP 200
+on its own.
 
 ## Reading the output
 
 - **Dates are UTC.** `todayStr` comes from `toISOString()`, so late-evening runs in
   UTC+N land on the previous local day. This matches Vercel; don't "fix" it.
-- **`acquired` equal to the full item count means a gap, not a shopping spree.**
-  The route diffs against *yesterday's* snapshot. If yesterday is missing, every
-  item reads as newly acquired. The invested total and snapshot rows are still
-  correct — only that one day's acquired/lost diff is meaningless.
-- **Items with no market price** are logged as warnings by the route and stored
-  with `price_cents = null`. Not an error.
+- **`{"status":"already_ran"}`** means it already ran today. That's the idempotency
+  guard, not a failure. Re-run with `--force` only if the user asks.
+- **`acquired` equal to the full item count means a gap in history**, not a shopping
+  spree — the route diffs against yesterday, so a missing day makes every item read
+  as new. Snapshot rows and invested total are still correct.
+- **Items with no market price** are logged as warnings and stored with
+  `price_cents = null`. Not an error.
 
-## Gotchas the script already handles
+## If it fails
 
-- Only one `next dev` can hold the `.next/dev` lock, so a second one dies with
-  "Unable to acquire lock". The script probes ports 3000–3010 for a server that
-  answers the route with **401** (proving it's this app and the auth check ran)
-  and reuses it; it only starts its own if none is found, and kills that one after.
-- The route needs `Authorization: Bearer $CRON_SECRET`; the script pulls the value
-  out of `.env.local`.
+The route catches everything and returns `{"error": ...}` with HTTP 500. The useful
+detail is in the dev server's `[cron]` console logs, not the response body. Upstream
+failures surface as `Steam inventory <status>` or `CSFloat price-list <status>` from
+`lib/inventory.ts`.
+
+Other flags: `--dry` fetches and computes but skips every DB write.
+
+## Notes on the scripts
+
+- Only one `next dev` can hold the `.next/dev` lock, so a second one dies. The script
+  probes ports 3000–3010 for a server answering the route with **401** (proving it's
+  this app and the auth check ran) and reuses it, only starting and cleaning up its
+  own if none is found.
 - `@neondatabase/serverless` is CommonJS — `import { neon }` fails from an ESM
-  script. The verify script goes through `createRequire`.
-
-## If the run itself fails
-
-The route catches everything and returns `{"error": ...}` with HTTP 500. The
-useful detail is in the dev server's `[cron]` console logs, not the response body.
-Upstream failures (Steam inventory, CSFloat price list) surface as `Steam
-inventory <status>` or `CSFloat price-list <status>` messages from `lib/inventory.ts`.
+  script, so the verify script goes through `createRequire`.
